@@ -1,15 +1,20 @@
 {
-	"name": "gulp-cjs-tasks-examples",
-	"version": "0.1.1",
-	"description": "",
-	"main": "index.js",
-	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1"
-	},
-	"author": "JP Wesselink <jpwesselink@gmail.com>",
-	"license": "GPLv3",
-	"devDependencies": {
-		"gulp": "^3.8.11",
-		"gulp-cjs-tasks": "0.1.0"
-	}
+  "name": "gulp-cjs-tasks-examples",
+  "version": "1.0.0",
+  "description": "Examples for gulp-cjs-tasks",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "JP Wesselink <jpwesselink@gmail.com>",
+  "license": "GPL-3.0",
+  "devDependencies": {
+    "globule": "^0.2.0",
+    "gulp": "^3.8.11",
+    "gulp-cjs-tasks": "^1.0.0",
+    "gulp-conflict": "^0.4.0",
+    "gulp-template": "^3.0.0",
+    "lodash": "^3.8.0",
+    "q": "^1.4.1"
+  }
 }

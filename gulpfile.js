@@ -4,4 +4,7 @@ var taskLoader = require('gulp-cjs-tasks/task-loader');
 
 var taskNames = taskLoader(__dirname + '/tasks', gulp);
 
-console.log('Added tasks:', taskNames.join(', '));
+var taskInfo = require('gulp-cjs-tasks/task-info');
+
+taskInfo(gulp)
+  .addHelpTask();
