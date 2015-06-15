@@ -1,80 +1,154 @@
 var conflict = require('gulp-conflict'),
-  fs = require('fs'),
-  globule = require('globule'),
-  lang = require('lodash/lang'),
-  path = require('path'),
-  array = require('lodash/array'),
-  string = require('lodash/string'),
-  template = require('gulp-template');
+	fs = require('fs'),
+	globule = require('globule'),
+	lang = require('lodash/lang'),
+	path = require('path'),
+	array = require('lodash/array'),
+	string = require('lodash/string'),
+	template = require('gulp-template');
+
+var tree = require('cli-tree');
 
 module.exports = function(gulp) {
-  var tasks = {
-    readme: {
-      fn: readme,
-      description: 'Creates readme file'
-    }
-  };
+	var tasks = {
+		readme: {
+			fn: readme,
+			description: 'Creates readme file'
+		},
+		'readme-watch': {
+			fn: w,
+			dep: ['readme'],
+			description: 'Creates readme on changes'
+		}
+	};
 
-  return tasks;
+	return tasks;
 
-  function readme() {
+	function readme() {
+		var t = require('gulp-cjs-tasks/task-info')(gulp);
+		var current,
+			templateData = {
+				k: t.getTasks(),
+				package: require('../package.json')
+			};
 
-    var data = {
-      package: require('../package.json')
-    };
+		[{
+			base: './',
+			src: ['tasks/**/*.js', '*.js'],
+			namespace: 'js',
+			wrapper: function(rendered, config) {
+				return ['```js', '// ' + config.file, rendered, '```'].join(
+					'\n');
+			}
+		}, {
+			base: './examples/',
+			src: ['**/*.js', '!**/node_modules/**/*.js'],
+			namespace: 'examples',
+			wrapper: function(rendered, config) {
+				return ['```js', '// ' + config.file, rendered, '```'].join(
+					'\n');
+			}
+		}, {
+			base: './templates/docs/partials/',
+			src: '**/*.md'
+		}].map(function(parseable) {
 
-    [{
-      src: ['./tasks/*.js', './*.js'],
-      namespace: 'js',
-      wrap: wrapJs
-    }, {
-      src: ['./examples/**/*.js'],
-      namespace: 'examplesJs',
-      wrap: wrapJs
-    }, {
-      src: './templates/docs/tasks/*.md',
-      namespace: 'tasks',
-      wrap: wrapTemplate
-    }, {
-      src: './templates/docs/about/*.md',
-      namespace: 'about',
-      wrap: wrapTemplate
-    }]
-    .map(function(pattern) {
-      if (!data[pattern.namespace]) {
-        data[pattern.namespace] = {};
-      }
+			var patterns, sorted, source;
 
-      // make this non-blocking
-      globule.find(pattern.src)
-        .map(function(file) {
-          var templateVar = string.camelCase(path.basename(file, path
-            .extname(
-              file)));
-          var taskSource = fs.readFileSync(
-            file,
-            'utf8');
-          if (lang.isFunction(pattern.wrap)) {
-            taskSource = pattern.wrap(file, taskSource);
-          }
+			if (parseable.namespace && !templateData[parseable.namespace]) {
+				templateData[parseable.namespace] = {};
+				current = templateData[parseable.namespace];
+			} else {
+				current = templateData;
+			}
 
-          data[pattern.namespace][templateVar] = taskSource;
-        });
-    });
+			source = lang.isArray(parseable.src) ? parseable.src : [parseable
+				.src
+			];
 
-    return gulp.src('./templates/docs/*.md')
-      .pipe(template(data))
-      .pipe(conflict('./'))
-      .pipe(gulp.dest('./'));
+			patterns = source.map(function(src) {
+				if (src.indexOf('!') === 0) {
+					return '!' + parseable.base + src.substring(1);
+				} else {
+					return parseable.base + src;
+				}
+			});
 
-    // hoistables
+			sorted = globule.find(patterns)
+				.map(function(file) {
+					var pathArrays = array.remove(path.relative(parseable.base,
+								path.dirname(
+									file))
+							.split(path.sep),
+							function(pathPart) {
+								if (pathPart !== '') {
+									return true;
+								}
+							})
+						.map(string.camelCase);
 
-    function wrapJs(file, contents) {
-      return ['```js', '// ' + file, contents, '```'].join('\n');
-    }
+					return {
+						parseable: parseable,
+						file: file,
+						depth: pathArrays
+					};
+				})
+				.sort(function(a, b) {
+					if (a.depth.length === b.depth.length) {
+						return 0;
+					} else if (a.depth.length > b.depth.length) {
+						return -1;
+					} else {
+						return 1;
+					}
+				})
+				.map(function(config) {
+					var basename, local, rendered, value;
 
-    function wrapTemplate(file, contents) {
-      return string.template(contents)(data);
-    }
-  }
+					basename = string.camelCase(path.basename(config.file, path
+						.extname(
+							config.file)));
+
+					local = current;
+
+					config.depth
+						.map(function(part) {
+							if (part !== '') {
+								if (!local[part]) {
+									local[part] = {};
+								}
+								local = local[part];
+							}
+						});
+
+					value = fs.readFileSync(config.file, 'utf8');
+
+					try {
+						rendered = string.template(value)(templateData);
+
+						if (lang.isFunction(config.parseable.wrapper)) {
+							rendered = config.parseable.wrapper(rendered, config);
+						}
+						local[basename] = rendered;
+					} catch (err) {
+						// gracefully fail missing objects
+						console.log('---', err, 'in', config.file);
+					}
+
+					return config;
+				});
+		});
+
+		tree(templateData);
+
+		return gulp.src('./templates/docs/*.md')
+			.pipe(template(templateData))
+			.pipe(gulp.dest('./'));
+	}
+
+	function w() {
+		gulp.watch(['./tasks/*.js', './*.js', './examples/**/*.js',
+			'./templates/**'
+		], ['readme'])
+	}
 }

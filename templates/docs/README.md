@@ -1,13 +1,6 @@
-# <%= package.description %>
-
-*Create gulp tasks using commonjs conventions*
-
-This repository contains examples which align with [version <%= package.version %>](https://github.com/sytac/gulp-cjs-tasks/tree/<%= package.version %>) of [`gulp-cjs-tasks`](https://github.com/sytac/gulp-cjs-tasks), you can find its repository [here](https://github.com/sytac/gulp-cjs-tasks/tree/<%= package.version %>).
-gulp-cjs-tasks is a node module which allows you to create gulp tasks using commonjs conventions rather than using the `gulp.task` function.
-
-<%= about.whereTheMouthIs %>
-
-## TL;DR
+<%= title %>
+<%= introduction %>
+<%= about.installation %>
 
 ## Rationale
 
@@ -16,11 +9,13 @@ gulp-cjs-tasks is a node module which allows you to create gulp tasks using comm
 - Module with task which exports an object, without gulp
 - Module with task which exports a function, with gulp
 
-## Task modules 101
+## Task modules
+###
+<%= tasks.generic %>
+<%= tasks.promised %>
+<%= tasks.exportingAnObject %>
+<%= tasks.exportingAFunction %>
 
-// generic
-// simpler
-// simplest
 ## Optional arguments
 
 // simple example
@@ -30,15 +25,17 @@ gulp-cjs-tasks is a node module which allows you to create gulp tasks using comm
 
 // simple example
 // elaborate example
+## Dependencies
+## Prioritization
 
-## Automated documentation
+<%= tasks.priorities %>
 
-##
+## Self generating documentation
+<%= k.map(function(task){ console.log(task); }) %>
+<%= tasks.help %>
 
-<%= tasks.generic %>
-<%= tasks.promised %>
-<%= tasks.exportingAnObject %>
-<%= tasks.exportingAFunction %>
+
+
 <%= tasks.readme %>
 
 ## About

@@ -7,4 +7,4 @@ var taskNames = taskLoader(__dirname + '/tasks', gulp);
 var taskInfo = require('gulp-cjs-tasks/task-info');
 
 taskInfo(gulp)
-  .addHelpTask();
+	.addHelpTask();
