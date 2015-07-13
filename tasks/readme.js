@@ -16,7 +16,7 @@ module.exports = function(gulp) {
 			description: 'Creates readme file'
 		},
 		'readme-watch': {
-			fn: w,
+			fn: readmeWatcher,
 			dep: ['readme'],
 			description: 'Creates readme on changes'
 		}
@@ -25,10 +25,10 @@ module.exports = function(gulp) {
 	return tasks;
 
 	function readme() {
-		var t = require('gulp-cjs-tasks/task-info')(gulp);
+		var taskInfo = require('gulp-cjs-tasks/task-info')(gulp);
 		var current,
 			templateData = {
-				k: t.getTasks(),
+				k: taskInfo.getTasks(),
 				package: require('../package.json')
 			};
 
@@ -146,9 +146,10 @@ module.exports = function(gulp) {
 			.pipe(gulp.dest('./'));
 	}
 
-	function w() {
+	function readmeWatcher() {
+		// As you can see, this is a regular, run off the mill gulp.watch function call
 		gulp.watch(['./tasks/*.js', './*.js', './examples/**/*.js',
 			'./templates/**'
-		], ['readme'])
+		], ['readme']);
 	}
-}
+};

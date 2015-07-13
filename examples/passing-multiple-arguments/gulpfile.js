@@ -1,16 +1,14 @@
-var gulp = require('gulp');
+var gulp = require('gulp'),
+	path = require('path');
 
 var taskLoader = require('gulp-cjs-tasks/task-loader');
 
 var foo = 'foo!';
 var bar = 'bar!';
 
-var taskLoader = taskLoader(__dirname + '/tasks', gulp, foo, bar);
+var tasks = taskLoader.load(path.resolve(__dirname, 'tasks'), gulp, foo, bar);
+tasks.addHelpTask();
 
 
-var taskInfo = require('gulp-cjs-tasks/task-info');
-
-taskInfo(gulp)
-	.addHelpTask();
-
-console.log('Added tasks:', taskLoader.taskNames.join(', '));
+console.log(tasks);
+console.log('Added tasks:', tasks.taskNames.join(', '));
