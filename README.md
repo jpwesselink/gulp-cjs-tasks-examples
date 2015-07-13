@@ -91,7 +91,7 @@ you can come up with.
 
 ```js
 // ./tasks/exporting-a-function.js
-module.exports = function(gulp) {
+module.exports = function() {
 	return function(done) {
 		console.log('exporting-a-function');
 		done();
@@ -105,14 +105,15 @@ the actual example in `./examples/passing-multiple-arguments`.
 
 ```js
 // ./examples/passing-multiple-arguments/gulpfile.js
-var gulp = require('gulp');
+var gulp = require('gulp'),
+	path = require('path');
 
 var taskLoader = require('gulp-cjs-tasks/task-loader');
 
 var foo = 'foo!';
 var bar = 'bar!';
 
-var tasks = taskLoader.load(__dirname + '/tasks', gulp, foo, bar);
+var tasks = taskLoader.load(path.resolve(__dirname, 'tasks'), gulp, foo, bar);
 tasks.addHelpTask();
 
 
@@ -400,7 +401,7 @@ module.exports = function(gulp) {
 			'./templates/**'
 		], ['readme']);
 	}
-}
+};
 
 ```
 
